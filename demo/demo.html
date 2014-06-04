@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8" />
+  <title>mememakermaker demo</title>
+</head>
+<body>
+  <h1>mememakermaker demo</h1>
+
+  <div>
+    <div>
+      <label for="upper-text">Upper text</label>
+      <input type="text" id="upper-text" value="100% TEST PASS" /><br />
+      <label for="lower-text">Lower text</label>
+      <input type="text" id="lower-text" value="TO SHOW THIS MEME." />
+    </div>
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <script type="application/javascript" src="jquery.js"></script>
+  <script type="application/javascript" src="../mememakermaker.js"></script>
+  <script type="application/javascript">
+    $(function () {
+      $("#canvas").mememaker2({
+        img: "./success-kid.jpg",
+        text1: {value: "#upper-text"},
+        text2: {value: "#lower-text", textBaseline: "bottom"}
+      });
+    });
+  </script>
+
+</body>
+</html>
