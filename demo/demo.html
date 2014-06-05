@@ -8,12 +8,12 @@
   <h1>mememakermaker demo</h1>
 
   <div>
-    <div>
+    <form id="form">
       <label for="upper-text">Upper text</label>
       <input type="text" id="upper-text" value="100% TEST PASS" /><br />
       <label for="lower-text">Lower text</label>
-      <input type="text" id="lower-text" value="TO SHOW THIS MEME." />
-    </div>
+      <input type="text" id="lower-text" value="TO SHOW THIS MEME." /><br />
+    </form>
     <canvas id="canvas"></canvas>
   </div>
 
@@ -21,10 +21,12 @@
   <script type="application/javascript" src="../mememakermaker.js"></script>
   <script type="application/javascript">
     $(function () {
-      $("#canvas").mememaker2({
+      $.MemeMaker2({
+        canvas: "#canvas",
         img: "./success-kid.jpg",
         text1: {value: "#upper-text"},
         text2: {value: "#lower-text", textBaseline: "bottom"}
+      }).then(function onFulFill(that) {
       });
     });
   </script>

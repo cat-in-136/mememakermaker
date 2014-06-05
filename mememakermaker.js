@@ -15,24 +15,22 @@
 
 (function($) {
   // TODO ES6 Promise migration (i.e. (new Promise(...) )
-  $.fn.mememaker2 = function (options) {
+  $.MemeMaker2 = function (options) {
     var defaults = {
       img: null
     };
     var setting = $.extend(defaults, options);
 
-    var that = this;
+    var that = $(setting.canvas);
     var defer = $.Deferred();
-    var canvas = this[0];
+    var canvas = that[0];
     var memeimg = null;
 
-    this.promise = defer.promise();
-
-    var updateSetting = this.updateSetting = function (options) {
+    var updateSetting = function (options) {
       setting = $.extend(setting, options);
     };
 
-    var updateMeme = this.updateMeme = function () {
+    var updateMeme = function () {
       var ctx = canvas.getContext("2d");
       ctx.drawImage(memeimg, 0, 0);
       ctx.font        = "bold 20px sans-serif bold";
@@ -101,7 +99,9 @@
       defer.reject(ex);
     });
 
-    return this;
+    that.updateSetting = updateSetting;
+    that.updateMeme = updateMeme;
+    return defer.promise();
   };
 
 })(jQuery);
