@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8" />
+  <title>mememakermaker demo</title>
+  <link href="bootstrap.css" rel="stylesheet" />
+  <link href="flat-ui.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="container">
+    <h1>Meme Maker Maker</h1>
+
+    <div class="alert alert-warning">Meme Maker Maker is now <strong>under construction</strong>.</div>
+
+    <div id="panel-step1" class="panel panel-default">
+	    <div class="panel-heading">
+        <h2 class="panel-title">Step 1. Set image</h2>
+      </div>
+      <div class="panel-body">
+
+        <form role="form">
+          <div class="form-group">
+            <label for="img-url">Image URL:</label>
+            <input id="img-url" type="url" placeholder="http://example.com/path/to/image/file.jpg" class="form-control" />
+          </div>
+          <div id="img-url-infoout" class="help-block"></div>
+        </form>
+      </div>
+    </div>
+
+    <div id="panel-step2" class="panel panel-default">
+	    <div class="panel-heading">
+        <h2 class="panel-title">Step 2. </h2>
+      </div>
+      <div class="panel-body">
+        <canvas id="canvas"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="application/javascript" src="jquery.js"></script>
+  <script type="application/javascript" src="../mememakermaker.js"></script>
+  <script type="application/javascript">
+    $(function () {
+      var mememaker2 = null;
+
+      function onStep1Input() {
+        var infoout = $("#img-url-infoout");
+        var form = $("#img-url").parent();
+        var url = $("#img-url").val();
+
+        infoout.html("");
+        form.removeClass("has-error has-success");
+        if (mememaker2) {
+          //mememaker2.release();
+          mememaker2 = null;
+        }
+
+        if (url == "") {
+          $("#panel-step2").hide();
+        } else {
+          $.MemeMaker2({
+            canvas: "#canvas",
+            text1: {value: "#img-url"},
+            img: url
+          }).then(function onFulFill(that) {
+            mememaker2 = that;
+            form.addClass("has-success");
+            $("#panel-step2").show();
+          }, function onFailure(that) {
+          console.error(that);
+            infoout.html("failed to load image.");
+            form.addClass("has-error");
+            $("#panel-step2").hide();
+          });
+        }
+      };
+
+      $("#img-url").on("change", onStep1Input);
+      $("#img-url").on("keyup", onStep1Input);
+      onStep1Input();
+    });
+
+    $("#panel-step1").show();
+    $("#panel-step2").hide();
+  </script>
+
+</body>
+</html>
