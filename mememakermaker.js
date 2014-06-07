@@ -26,8 +26,16 @@
     var canvas = that[0];
     var memeimg = null;
 
-    var updateSetting = function (options) {
-      setting = $.extend(setting, options);
+    var updateSetting = function () {
+      if (arguments.length == 0) {
+        // do nothing
+      } else if (arguments.length == 1) {
+        setting = $.extend(setting, options);
+      } else if (arguments.length == 2) {
+        setting[arguments[0]] = arguments[1];
+      } else {
+        jQuery.error("wrong number of arguments to updateSetting");
+      }
     };
 
     var updateMeme = function () {
@@ -63,6 +71,30 @@
       }
     };
 
+    var applyAutoUpdate = function () {
+      for (var i = 1; setting["text" + i]; i++) {
+        var textbox = $(setting["text" + i].value);
+        textbox.off("change.mememaker2");
+        textbox.off("keyup.mememaker2");
+        textbox.on("change.mememaker2", updateMeme);
+        textbox.on("keyup.mememaker2", updateMeme);
+      }
+    };
+
+    var release = function () {
+      var ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (var i = 1; setting["text" + i]; i++) {
+        var textbox = $(setting["text" + i].value);
+
+        textbox.off("change.mememaker2");
+        textbox.off("keyup.mememaker2");
+      }
+
+      setting = $.extend({}, defaults);
+    };
+
     (function delayImgLoad(url) {
       var d = $.Deferred();
       try {
@@ -80,14 +112,11 @@
         canvas.width = img.width;
         canvas.height = img.height;
 
-        updateMeme();
-
         if (!setting.noAutoUpdate) {
-          for (var i = 1; setting["text" + i]; i++) {
-            $(setting["text" + i].value).change(updateMeme);
-            $(setting["text" + i].value).keyup(updateMeme);
-          }
+          applyAutoUpdate();
         }
+
+        updateMeme();
 
         defer.resolve(that);
       } catch (ex) {
@@ -101,6 +130,8 @@
 
     that.updateSetting = updateSetting;
     that.updateMeme = updateMeme;
+    that.applyAutoUpdate = applyAutoUpdate;
+    that.release = release;
     return defer.promise();
   };
 

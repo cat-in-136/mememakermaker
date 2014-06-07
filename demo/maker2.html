@@ -20,7 +20,7 @@
 
         <form role="form">
           <div class="form-group">
-            <label for="img-url">Image URL:</label>
+            <label for="img-url" class="control-label">Image URL:</label>
             <input id="img-url" type="url" placeholder="http://example.com/path/to/image/file.jpg" class="form-control" />
           </div>
           <div id="img-url-infoout" class="help-block"></div>
@@ -30,16 +30,76 @@
 
     <div id="panel-step2" class="panel panel-default">
 	    <div class="panel-heading">
-        <h2 class="panel-title">Step 2. </h2>
+        <h2 class="panel-title">Step 2. Add Texts</h2>
       </div>
       <div class="panel-body">
-        <canvas id="canvas"></canvas>
+        <div class="container text-center">
+          <canvas id="canvas" class="img-thumbnail"></canvas>
+        </div>
+
+        <div id="text-ctrl-paginate" class="pagination">
+          <ul>
+            <li class="active"><a href="javascript:void()">1</a></li>
+            <li class="next"><a href="javascript:void()"><span class="glyphicon glyphicon-plus"></span> Add</a></li>
+          </ul>
+        </div>
+
+        <form id="text-ctrl-form" role="form">
+            <div class="active"><a href="javascript:void()">1</a></div>
+          <template>
+            <div class="form-group">
+              <input id="text-ctrl-N-text" type="text" class="form-control" placeholder="Text" />
+            </div>
+            <div class="form-group">
+              <div class="btn-group" data-toggle="buttons">
+                <label class="btn btn-default">
+                  <input type="radio" name="text-ctrl-N-textAlign" id="text-ctrl-N-left" />
+                  <span class="glyphicon glyphicon-align-left"></span> Left
+                </label>
+                <label class="btn btn-default">
+                  <input type="radio" name="text-ctrl-N-textAlign" id="text-ctrl-N-center" />
+                  <span class="glyphicon glyphicon-align-center"></span> Center
+                </label>
+                <label class="btn btn-default">
+                  <input type="radio" name="text-ctrl-N-textAlign" id="text-ctrl-N-right" />
+                  <span class="glyphicon glyphicon-align-right"></span> Right
+                </label>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="input-group">
+                <label for="text-ctrl-N-x" class="input-group-addon">Margin Left</label>
+                <input type="number" class="form-control" id="text-ctrl-N-x" value="0">
+              </div>
+              <div class="input-group">
+                <label for="text-ctrl-N-y" class="input-group-addon">Margin Top</label>
+                <input type="number" class="form-control" id="text-ctrl-N-y" value="0">
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="input-group">
+                <label for="text-ctrl-N-stroke" class="input-group-addon">Stroke Color</label>
+                <input class="form-control" type="color" id="text-ctrl-N-stroke" value="#000000" />
+              </div>
+              <div class="input-group">
+                <label for="text-ctrl-N-fill" class="input-group-addon">Fill Color</label>
+                <input class="form-control" type="color" id="text-ctrl-N-fill" value="#ffffff" />
+              </div>
+            </div>
+            <!--
+            <div class="text-right">
+              <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-trash"></span> Remove</button>
+            </div>
+            -->
+          </template>
+        </form>
       </div>
     </div>
 
   </div>
 
   <script type="application/javascript" src="js/jquery.js"></script>
+  <script type="application/javascript" src="js/bootstrap.js"></script>
   <script type="application/javascript" src="../mememakermaker.js"></script>
   <script type="application/javascript">
     $(function () {
@@ -53,7 +113,7 @@
         infoout.html("");
         form.removeClass("has-error has-success");
         if (mememaker2) {
-          //mememaker2.release();
+          mememaker2.release();
           mememaker2 = null;
         }
 
@@ -62,24 +122,77 @@
         } else {
           $.MemeMaker2({
             canvas: "#canvas",
-            text1: {value: "#img-url"},
             img: url
           }).then(function onFulFill(that) {
             mememaker2 = that;
             form.addClass("has-success");
-            $("#panel-step2").show();
+
+            onStep2Activate(mememaker2);
           }, function onFailure(that) {
           console.error(that);
             infoout.html("failed to load image.");
             form.addClass("has-error");
-            $("#panel-step2").hide();
+
+            onStep2Deactivate(mememaker2);
           });
         }
       };
-
       $("#img-url").on("change", onStep1Input);
       $("#img-url").on("keyup", onStep1Input);
       onStep1Input();
+
+      function onStep2Activate(mememaker2) {
+        $("#text-ctrl-paginate li:not(.next)").remove();
+        $("#text-ctrl-form > div").remove();
+
+        var panelTemplate = $("#text-ctrl-form > template")[0];
+        var panel = null;
+        if ("content" in panelTemplate) {
+          panel = document.createElement("div"); 
+          panel.id = "text-ctrl-panel-1";
+          panel.appendChild(document.importNode(panelTemplate.content, true));
+        } else {
+          panel = document.createElement("div"); 
+          $(panelTemplate).each(function(v) {
+            panel.appendChild(v.cloneNode(true));
+          });
+        }
+        $("*[id]", panel).attr("id", function(index, val) {
+          return val.replace("text-ctrl-N-", "text-ctrl-1-");
+        });
+        $("*[for]", panel).attr("for", function(index, val) {
+          return val.replace("text-ctrl-N-", "text-ctrl-1-");
+        });
+        $("#text-ctrl-form").append(panel);
+
+        $("#text-ctrl-paginate li.active").removeClass("active");
+        $("<li></li>", {
+          "class": "active",
+          "data-form-id": "text-ctrl-panel-" + 1
+        }).append($("<a></a>", {
+          href: "javascript:void();",
+          text: 1 + "",
+          click: function () {
+            onStep2ShowTab(1);
+          }
+        })).insertBefore("#text-ctrl-paginate li.next");
+        mememaker2.updateSetting("text" + 1, { value: "#text-ctrl-1-text" });
+        mememaker2.applyAutoUpdate();
+        mememaker2.updateMeme();
+
+        $("#panel-step2").fadeIn();
+      }
+      function onStep2Deactivate(mememaker2) {
+        $("#panel-step2").fadeOut();
+      }
+      function onStep2ShowTab(index) {
+        $("#text-ctrl-paginate li.active").removeClass("active");
+        $("#text-ctrl-paginate li[data-form-id=text-ctrl-panel-"+index+"]").addClass("active");
+        $("#text-ctrl-form > div:not(#text-ctrl-panel-"+index+")").fadeOut();
+        $("#text-ctrl-form > div#text-ctrl-panel-"+index).fadeIn();
+      }
+
+
     });
 
     $("#panel-step1").show();
