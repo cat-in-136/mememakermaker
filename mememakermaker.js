@@ -39,6 +39,9 @@
         jQuery.error("wrong number of arguments to updateSetting");
       }
     };
+    var getSetting = function () {
+      return $.extend({}, setting);
+    };
     var resetTextSetting = function (textSetting) {
       for (var i = 1; setting["text" + i]; i++) {
         delete setting["text" + i];
@@ -137,6 +140,7 @@
     });
 
     that.updateSetting = updateSetting;
+    that.getSetting = getSetting;
     that.resetTextSetting = resetTextSetting;
     that.updateMeme = updateMeme;
     that.applyAutoUpdate = applyAutoUpdate;

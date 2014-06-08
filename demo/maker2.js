@@ -42,11 +42,13 @@ $(function () {
         form.addClass("has-success");
 
         step2activate();
+        step3activate();
       }, function onFailure(that) {
         infoout.html("failed to load image.");
         form.addClass("has-error");
 
         step2deactivate();
+        step3deactivate();
       });
     }
   };
@@ -146,9 +148,44 @@ $(function () {
   }
   $("#text-ctrl-add-next").on("click", onStep2AddTab);
 
+  function step3activate() {
+    $("#panel-step3").fadeIn();
+  }
+  function step3deactivate() {
+    $("#panel-step3").fadeOut();
+  }
+  function onCodeToShareCodeBtnClicked() {
+    var setting = mememaker2.getSetting();
+    delete setting["noAutoUpdate"];
+    var view = $("<div></div>");
+    view.append($("<canvas></canvas>", { id: canvas.id }));
+    for (var index = 1; setting["text" + index]; index++) {
+      view.append($("<input />", {
+        type: "text",
+        id: setting["text" + index].value,
+        value: $(setting["text" + index].value).val()
+      }));
+    }
+
+    var code = view.html() +
+               "<script type=\"application/javascript\">\n" +
+               "$(function () {\n" +
+               "  $.MemeMaker2(\n" +
+               "    " + JSON.stringify(setting) + "\n" +
+               "  ).then(function onFulFill(that) {\n" +
+               "  });\n" +
+               "});\n" +
+               "</script>";
+    $("#code-share-output").children().remove();
+    $("#code-share-output").append(
+      $("<pre></pre>").append($("<code></code>").text(code))
+    );
+  }
+  $("#code-share-code-btn").on("click", onCodeToShareCodeBtnClicked);
 });
 
 $("#panel-step1").show();
 $("#panel-step2").hide();
+$("#panel-step3").hide();
 
 /* vim:set fileencoding=UTF-8 tabstop=2 shiftwidth=2 softtabstop=2 expandtab: */
