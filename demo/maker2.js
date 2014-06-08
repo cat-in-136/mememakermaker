@@ -52,7 +52,6 @@ $(function () {
     }
   };
   $("#img-url").on("change", onStep1Input);
-  $("#img-url").on("keyup", onStep1Input);
   onStep1Input();
 
   function step2activate() {
