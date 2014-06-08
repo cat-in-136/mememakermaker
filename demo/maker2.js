@@ -35,18 +35,19 @@ $(function () {
     } else {
       $.MemeMaker2({
         canvas: "#canvas",
-        img: url
+        img: url,
+        noAutoUpdate: true
       }).then(function onFulFill(that) {
         mememaker2 = that;
         form.addClass("has-success");
 
-        onStep2Activate(mememaker2);
+        step2activate();
       }, function onFailure(that) {
       console.error(that);
         infoout.html("failed to load image.");
         form.addClass("has-error");
 
-        onStep2Deactivate(mememaker2);
+        step2deactivate();
       });
     }
   };
@@ -54,57 +55,77 @@ $(function () {
   $("#img-url").on("keyup", onStep1Input);
   onStep1Input();
 
-  function onStep2Activate(mememaker2) {
+  function step2activate() {
     $("#text-ctrl-paginate li:not(.next)").remove();
     $("#text-ctrl-form > div").remove();
 
-    var panelTemplate = $("#text-ctrl-form > template")[0];
-    var panel = null;
-    if ("content" in panelTemplate) {
-      panel = document.createElement("div"); 
-      panel.id = "text-ctrl-panel-1";
-      panel.appendChild(document.importNode(panelTemplate.content, true));
-    } else {
-      panel = document.createElement("div"); 
-      $(panelTemplate).each(function(v) {
-        panel.appendChild(v.cloneNode(true));
-      });
-    }
-    $("*[id]", panel).attr("id", function(index, val) {
-      return val.replace("text-ctrl-N-", "text-ctrl-1-");
-    });
-    $("*[for]", panel).attr("for", function(index, val) {
-      return val.replace("text-ctrl-N-", "text-ctrl-1-");
-    });
-    $("#text-ctrl-form").append(panel);
-
-    $("#text-ctrl-paginate li.active").removeClass("active");
-    $("<li></li>", {
-      "class": "active",
-      "data-form-id": "text-ctrl-panel-" + 1
-    }).append($("<a></a>", {
-      href: "javascript:void();",
-      text: 1 + "",
-      click: function () {
-        onStep2ShowTab(1);
-      }
-    })).insertBefore("#text-ctrl-paginate li.next");
-    mememaker2.updateSetting("text" + 1, { value: "#text-ctrl-1-text" });
-    mememaker2.applyAutoUpdate();
-    mememaker2.updateMeme();
+    step2addTab();
 
     $("#panel-step2").fadeIn();
   }
-  function onStep2Deactivate(mememaker2) {
+  function step2deactivate() {
     $("#panel-step2").fadeOut();
   }
-  function onStep2ShowTab(index) {
+  function step2getNumTextCtrl() {
+    var index = 1;
+    // seek the last index.
+    while ($("#text-ctrl-form > div#text-ctrl-panel-" + index).length != 0) {
+      index++;
+    }
+    return index - 1;
+  }
+  function step2addTab() {
+    (function (index) {
+      var panelTemplate = $("#text-ctrl-form > template")[0];
+      var panel = null;
+      if ("content" in panelTemplate) {
+        panel = $("<div></div>", { id: "text-ctrl-panel-" + index });
+        panel.append(document.importNode(panelTemplate.content, true));
+      } else {
+        panel = $("<div></div>", { id: "text-ctrl-panel-" + index });
+        $(panelTemplate).children().each(function(v) {
+          panel.append(v.cloneNode(true));
+        });
+      }
+      $("*[id]", panel).attr("id", function(i, val) {
+        return val.replace("text-ctrl-N-", "text-ctrl-"+index+"-");
+      });
+      $("*[for]", panel).attr("for", function(i, val) {
+        return val.replace("text-ctrl-N-", "text-ctrl-"+index+"-");
+      });
+      $("#text-ctrl-"+index+"-left").click();
+      $("#text-ctrl-form").append(panel);
+
+      $("#text-ctrl-paginate li.active").removeClass("active");
+      $("<li></li>", {
+        "class": "active",
+        "data-form-id": "text-ctrl-panel-" + index
+      }).append($("<a></a>", {
+        href: "javascript:void();",
+        text: "" + index,
+        click: function () {
+          step2showTab(index);
+        }
+      })).insertBefore("#text-ctrl-paginate li.next");
+
+      mememaker2.updateSetting("text" + index, { value: "#text-ctrl-"+index+"-text" });
+      $("#text-ctrl-"+index+"-text").on("keyup", mememaker2.updateMeme);
+      $("#text-ctrl-"+index+"-text").on("change", mememaker2.updateMeme);
+      mememaker2.updateMeme();
+    })(step2getNumTextCtrl() + 1);
+
+  }
+  function step2showTab(index) {
     $("#text-ctrl-paginate li.active").removeClass("active");
     $("#text-ctrl-paginate li[data-form-id=text-ctrl-panel-"+index+"]").addClass("active");
-    $("#text-ctrl-form > div:not(#text-ctrl-panel-"+index+")").fadeOut();
-    $("#text-ctrl-form > div#text-ctrl-panel-"+index).fadeIn();
+    $("#text-ctrl-form > div:not(#text-ctrl-panel-"+index+")").slideUp();
+    $("#text-ctrl-form > div#text-ctrl-panel-"+index).slideDown();
   }
-
+  function onStep2AddTab() {
+    step2addTab();
+    step2showTab(step2getNumTextCtrl());
+  }
+  $("#text-ctrl-add-next").on("click", onStep2AddTab);
 
 });
 

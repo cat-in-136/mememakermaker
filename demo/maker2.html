@@ -40,7 +40,7 @@
         <div id="text-ctrl-paginate" class="pagination">
           <ul>
             <li class="active"><a href="javascript:void()">1</a></li>
-            <li class="next"><a href="javascript:void()"><span class="glyphicon glyphicon-plus"></span> Add</a></li>
+            <li class="next"><a id="text-ctrl-add-next" href="javascript:void()"><span class="glyphicon glyphicon-plus"></span> Add</a></li>
           </ul>
         </div>
 
@@ -53,15 +53,15 @@
             <div class="form-group">
               <div class="btn-group" data-toggle="buttons">
                 <label class="btn btn-default">
-                  <input type="radio" name="text-ctrl-N-textAlign" id="text-ctrl-N-left" />
+                  <input type="radio" name="text-ctrl-N-textAlign" id="text-ctrl-N-left" value="left" checked="checked" />
                   <span class="glyphicon glyphicon-align-left"></span> Left
                 </label>
                 <label class="btn btn-default">
-                  <input type="radio" name="text-ctrl-N-textAlign" id="text-ctrl-N-center" />
+                  <input type="radio" name="text-ctrl-N-textAlign" id="text-ctrl-N-center" value="center" />
                   <span class="glyphicon glyphicon-align-center"></span> Center
                 </label>
                 <label class="btn btn-default">
-                  <input type="radio" name="text-ctrl-N-textAlign" id="text-ctrl-N-right" />
+                  <input type="radio" name="text-ctrl-N-textAlign" id="text-ctrl-N-right" value="right" />
                   <span class="glyphicon glyphicon-align-right"></span> Right
                 </label>
               </div>
