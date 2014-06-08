@@ -1,5 +1,7 @@
 /* Meme Maker Maker
  *
+ * Copyright 2014 @cat_in_136
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * (at your option) any later version.
