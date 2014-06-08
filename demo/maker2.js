@@ -43,7 +43,6 @@ $(function () {
 
         step2activate();
       }, function onFailure(that) {
-      console.error(that);
         infoout.html("failed to load image.");
         form.addClass("has-error");
 
@@ -92,7 +91,11 @@ $(function () {
       $("*[for]", panel).attr("for", function(i, val) {
         return val.replace("text-ctrl-N-", "text-ctrl-"+index+"-");
       });
-      $("#text-ctrl-"+index+"-left").click();
+
+      $("input[name=text-ctrl-N-textAlign]", panel).attr("name", "text-ctrl-"+index+"-textAlign");
+      $("#text-ctrl-"+index+"-left", panel).parent().addClass("active");
+      $("#text-ctrl-"+index+"-left", panel).attr("checked", "checked");
+
       $("#text-ctrl-form").append(panel);
 
       $("#text-ctrl-paginate li.active").removeClass("active");
@@ -107,12 +110,29 @@ $(function () {
         }
       })).insertBefore("#text-ctrl-paginate li.next");
 
-      mememaker2.updateSetting("text" + index, { value: "#text-ctrl-"+index+"-text" });
       $("#text-ctrl-"+index+"-text").on("keyup", mememaker2.updateMeme);
       $("#text-ctrl-"+index+"-text").on("change", mememaker2.updateMeme);
-      mememaker2.updateMeme();
+      $("input[type=radio], input[type=number], input[type=color]").on("change", function () {
+        step2updateMeme();
+      });
+      step2updateMeme();
     })(step2getNumTextCtrl() + 1);
 
+  }
+  function step2updateMeme() {
+    var setting = {};
+    for (var index = 1; $("#text-ctrl-form > div#text-ctrl-panel-" + index).length != 0; index++) {
+      setting["text" + index] = {
+        value: "#text-ctrl-"+index+"-text",
+        textAlign: $("input[name=text-ctrl-"+index+"-textAlign]:checked").val(),
+        x: parseInt($("#text-ctrl-"+index+"-x").val()),
+        y: parseInt($("#text-ctrl-"+index+"-y").val()),
+        strokeStyle: $("#text-ctrl-"+index+"-stroke").val(),
+        fillStyle: $("#text-ctrl-"+index+"-fill").val()
+      };
+    }
+    mememaker2.resetTextSetting(setting);
+    mememaker2.updateMeme();
   }
   function step2showTab(index) {
     $("#text-ctrl-paginate li.active").removeClass("active");

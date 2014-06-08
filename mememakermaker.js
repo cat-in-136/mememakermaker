@@ -32,12 +32,18 @@
       if (arguments.length == 0) {
         // do nothing
       } else if (arguments.length == 1) {
-        setting = $.extend(setting, options);
+        setting = $.extend(setting, arguments[0]);
       } else if (arguments.length == 2) {
         setting[arguments[0]] = arguments[1];
       } else {
         jQuery.error("wrong number of arguments to updateSetting");
       }
+    };
+    var resetTextSetting = function (textSetting) {
+      for (var i = 1; setting["text" + i]; i++) {
+        delete setting["text" + i];
+      }
+      updateSetting(textSetting);
     };
 
     var updateMeme = function () {
@@ -54,13 +60,13 @@
           ctx.textAlign = textsetting.textAlign || "center";
           ctx.textBaseline = textsetting.textBaseline || "top";
           var textX = textsetting.x;
-          if (!textX) {
+          if (textX === undefined) {
             if (ctx.textAlign == "left")   { textX = 0;                }
             if (ctx.textAlign == "right")  { textX = canvas.width;     }
             if (ctx.textAlign == "center") { textX = canvas.width / 2; }
           }
-          var textY = textsetting.x;
-          if (!textY) {
+          var textY = textsetting.y;
+          if (textY === undefined) {
             if (ctx.textBaseline == "top")    { textY = 0;                }
             if (ctx.textBaseline == "bottom") { textY = canvas.height - 20;}
             if (ctx.textBaseline == "midlle") { textY = canvas.height / 2;}
@@ -131,6 +137,7 @@
     });
 
     that.updateSetting = updateSetting;
+    that.resetTextSetting = resetTextSetting;
     that.updateMeme = updateMeme;
     that.applyAutoUpdate = applyAutoUpdate;
     that.release = release;
