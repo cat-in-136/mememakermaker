@@ -42,12 +42,13 @@ $(function () {
         form.addClass("has-success");
 
         step2activate();
+        step3activate();
       }, function onFailure(that) {
-      console.error(that);
         infoout.html("failed to load image.");
         form.addClass("has-error");
 
         step2deactivate();
+        step3deactivate();
       });
     }
   };
@@ -92,7 +93,11 @@ $(function () {
       $("*[for]", panel).attr("for", function(i, val) {
         return val.replace("text-ctrl-N-", "text-ctrl-"+index+"-");
       });
-      $("#text-ctrl-"+index+"-left").click();
+
+      $("input[name=text-ctrl-N-textAlign]", panel).attr("name", "text-ctrl-"+index+"-textAlign");
+      $("#text-ctrl-"+index+"-left", panel).parent().addClass("active");
+      $("#text-ctrl-"+index+"-left", panel).attr("checked", "checked");
+
       $("#text-ctrl-form").append(panel);
 
       $("#text-ctrl-paginate li.active").removeClass("active");
@@ -107,12 +112,29 @@ $(function () {
         }
       })).insertBefore("#text-ctrl-paginate li.next");
 
-      mememaker2.updateSetting("text" + index, { value: "#text-ctrl-"+index+"-text" });
       $("#text-ctrl-"+index+"-text").on("keyup", mememaker2.updateMeme);
       $("#text-ctrl-"+index+"-text").on("change", mememaker2.updateMeme);
-      mememaker2.updateMeme();
+      $("input[type=radio], input[type=number], input[type=color]").on("change", function () {
+        step2updateMeme();
+      });
+      step2updateMeme();
     })(step2getNumTextCtrl() + 1);
 
+  }
+  function step2updateMeme() {
+    var setting = {};
+    for (var index = 1; $("#text-ctrl-form > div#text-ctrl-panel-" + index).length != 0; index++) {
+      setting["text" + index] = {
+        value: "#text-ctrl-"+index+"-text",
+        textAlign: $("input[name=text-ctrl-"+index+"-textAlign]:checked").val(),
+        x: parseInt($("#text-ctrl-"+index+"-x").val()),
+        y: parseInt($("#text-ctrl-"+index+"-y").val()),
+        strokeStyle: $("#text-ctrl-"+index+"-stroke").val(),
+        fillStyle: $("#text-ctrl-"+index+"-fill").val()
+      };
+    }
+    mememaker2.resetTextSetting(setting);
+    mememaker2.updateMeme();
   }
   function step2showTab(index) {
     $("#text-ctrl-paginate li.active").removeClass("active");
@@ -126,9 +148,44 @@ $(function () {
   }
   $("#text-ctrl-add-next").on("click", onStep2AddTab);
 
+  function step3activate() {
+    $("#panel-step3").fadeIn();
+  }
+  function step3deactivate() {
+    $("#panel-step3").fadeOut();
+  }
+  function onCodeToShareCodeBtnClicked() {
+    var setting = mememaker2.getSetting();
+    delete setting["noAutoUpdate"];
+    var view = $("<div></div>");
+    view.append($("<canvas></canvas>", { id: canvas.id }));
+    for (var index = 1; setting["text" + index]; index++) {
+      view.append($("<input />", {
+        type: "text",
+        id: setting["text" + index].value,
+        value: $(setting["text" + index].value).val()
+      }));
+    }
+
+    var code = view.html() +
+               "<script type=\"application/javascript\">\n" +
+               "$(function () {\n" +
+               "  $.MemeMaker2(\n" +
+               "    " + JSON.stringify(setting) + "\n" +
+               "  ).then(function onFulFill(that) {\n" +
+               "  });\n" +
+               "});\n" +
+               "</script>";
+    $("#code-share-output").children().remove();
+    $("#code-share-output").append(
+      $("<pre></pre>").append($("<code></code>").text(code))
+    );
+  }
+  $("#code-share-code-btn").on("click", onCodeToShareCodeBtnClicked);
 });
 
 $("#panel-step1").show();
 $("#panel-step2").hide();
+$("#panel-step3").hide();
 
 /* vim:set fileencoding=UTF-8 tabstop=2 shiftwidth=2 softtabstop=2 expandtab: */
