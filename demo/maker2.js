@@ -20,11 +20,13 @@ $(function () {
 
   function onStep1Input() {
     var infoout = $("#img-url-infoout");
+    var feedback = $("#img-url-feedback");
     var form = $("#img-url").parent();
     var url = $("#img-url").val();
 
     infoout.html("");
     form.removeClass("has-error has-success");
+    feedback.removeClass("glyphicon-ok glyphicon-warning-sign");
     if (mememaker2) {
       mememaker2.release();
       mememaker2 = null;
@@ -40,12 +42,14 @@ $(function () {
       }).then(function onFulFill(that) {
         mememaker2 = that;
         form.addClass("has-success");
+        feedback.addClass("glyphicon-ok");
 
         step2activate();
         step3activate();
       }, function onFailure(that) {
         infoout.html("failed to load image.");
         form.addClass("has-error");
+        feedback.addClass("glyphicon-warning-sign");
 
         step2deactivate();
         step3deactivate();
@@ -112,10 +116,17 @@ $(function () {
         }
       })).insertBefore("#text-ctrl-paginate li.next");
 
-      $("#text-ctrl-"+index+"-text").on("keyup", mememaker2.updateMeme);
-      $("#text-ctrl-"+index+"-text").on("change", mememaker2.updateMeme);
-      $("input[type=radio], input[type=number], input[type=color]").on("change", function () {
+      $("#text-ctrl-"+index+"-text", panel).on("keyup", mememaker2.updateMeme);
+      $("#text-ctrl-"+index+"-text", panel).on("change", mememaker2.updateMeme);
+      $("input[type=radio], input[type=number], input[type=checkbox], input[type=color]", panel).on("change", function () {
         step2updateMeme();
+      });
+      $("#text-ctrl-"+index+"-stroke-use").on("change", function () {
+        if ($("#text-ctrl-"+index+"-stroke-use").is(":checked")) {
+          $("#text-ctrl-"+index+"-stroke").removeAttr("disabled");
+        } else {
+          $("#text-ctrl-"+index+"-stroke").attr("disabled", "disabled");
+        }
       });
       step2updateMeme();
     })(step2getNumTextCtrl() + 1);
@@ -129,10 +140,11 @@ $(function () {
         textAlign: $("input[name=text-ctrl-"+index+"-textAlign]:checked").val(),
         x: parseInt($("#text-ctrl-"+index+"-x").val()),
         y: parseInt($("#text-ctrl-"+index+"-y").val()),
-        strokeStyle: $("#text-ctrl-"+index+"-stroke").val(),
+        strokeStyle: ($("#text-ctrl-"+index+"-stroke-use").is(':checked'))? $("#text-ctrl-"+index+"-stroke").val() : "transparent",
         fillStyle: $("#text-ctrl-"+index+"-fill").val()
       };
     }
+    console.debug(setting);
     mememaker2.resetTextSetting(setting);
     mememaker2.updateMeme();
   }
@@ -153,6 +165,10 @@ $(function () {
   }
   function step3deactivate() {
     $("#panel-step3").fadeOut();
+
+    var shareOutput = $("#code-share-output");
+    shareOutput.children().remove();
+    shareOutput.fadeTo("slow", 0);
   }
   function onCodeToShareCodeBtnClicked() {
     var setting = mememaker2.getSetting();
@@ -167,7 +183,7 @@ $(function () {
       }));
     }
 
-    var code = view.html() +
+    var code = view.html() + "\n" +
                "<script type=\"application/javascript\">\n" +
                "$(function () {\n" +
                "  $.MemeMaker2(\n" +
@@ -175,11 +191,15 @@ $(function () {
                "  ).then(function onFulFill(that) {\n" +
                "  });\n" +
                "});\n" +
-               "</script>";
-    $("#code-share-output").children().remove();
-    $("#code-share-output").append(
-      $("<pre></pre>").append($("<code></code>").text(code))
-    );
+               "</script>\n";
+    var shareOutput = $("#code-share-output");
+    shareOutput.fadeTo("normal", 0, function () {
+      shareOutput.children().remove();
+      shareOutput.append(
+        $("<pre></pre>").append($("<code></code>").text(code))
+      );
+      shareOutput.fadeTo("normal", 1);
+    });
   }
   $("#code-share-code-btn").on("click", onCodeToShareCodeBtnClicked);
 });
