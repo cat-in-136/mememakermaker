@@ -20,11 +20,13 @@ $(function () {
 
   function onStep1Input() {
     var infoout = $("#img-url-infoout");
+    var feedback = $("#img-url-feedback");
     var form = $("#img-url").parent();
     var url = $("#img-url").val();
 
     infoout.html("");
     form.removeClass("has-error has-success");
+    feedback.removeClass("glyphicon-ok glyphicon-warning-sign");
     if (mememaker2) {
       mememaker2.release();
       mememaker2 = null;
@@ -40,12 +42,14 @@ $(function () {
       }).then(function onFulFill(that) {
         mememaker2 = that;
         form.addClass("has-success");
+        feedback.addClass("glyphicon-ok");
 
         step2activate();
         step3activate();
       }, function onFailure(that) {
         infoout.html("failed to load image.");
         form.addClass("has-error");
+        feedback.addClass("glyphicon-warning-sign");
 
         step2deactivate();
         step3deactivate();
@@ -161,6 +165,10 @@ $(function () {
   }
   function step3deactivate() {
     $("#panel-step3").fadeOut();
+
+    var shareOutput = $("#code-share-output");
+    shareOutput.children().remove();
+    shareOutput.fadeTo("slow", 0);
   }
   function onCodeToShareCodeBtnClicked() {
     var setting = mememaker2.getSetting();
@@ -175,7 +183,7 @@ $(function () {
       }));
     }
 
-    var code = view.html() +
+    var code = view.html() + "\n" +
                "<script type=\"application/javascript\">\n" +
                "$(function () {\n" +
                "  $.MemeMaker2(\n" +
@@ -183,11 +191,15 @@ $(function () {
                "  ).then(function onFulFill(that) {\n" +
                "  });\n" +
                "});\n" +
-               "</script>";
-    $("#code-share-output").children().remove();
-    $("#code-share-output").append(
-      $("<pre></pre>").append($("<code></code>").text(code))
-    );
+               "</script>\n";
+    var shareOutput = $("#code-share-output");
+    shareOutput.fadeTo("normal", 0, function () {
+      shareOutput.children().remove();
+      shareOutput.append(
+        $("<pre></pre>").append($("<code></code>").text(code))
+      );
+      shareOutput.fadeTo("normal", 1);
+    });
   }
   $("#code-share-code-btn").on("click", onCodeToShareCodeBtnClicked);
 });
