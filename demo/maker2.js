@@ -112,10 +112,17 @@ $(function () {
         }
       })).insertBefore("#text-ctrl-paginate li.next");
 
-      $("#text-ctrl-"+index+"-text").on("keyup", mememaker2.updateMeme);
-      $("#text-ctrl-"+index+"-text").on("change", mememaker2.updateMeme);
-      $("input[type=radio], input[type=number], input[type=color]").on("change", function () {
+      $("#text-ctrl-"+index+"-text", panel).on("keyup", mememaker2.updateMeme);
+      $("#text-ctrl-"+index+"-text", panel).on("change", mememaker2.updateMeme);
+      $("input[type=radio], input[type=number], input[type=checkbox], input[type=color]", panel).on("change", function () {
         step2updateMeme();
+      });
+      $("#text-ctrl-"+index+"-stroke-use").on("change", function () {
+        if ($("#text-ctrl-"+index+"-stroke-use").is(":checked")) {
+          $("#text-ctrl-"+index+"-stroke").removeAttr("disabled");
+        } else {
+          $("#text-ctrl-"+index+"-stroke").attr("disabled", "disabled");
+        }
       });
       step2updateMeme();
     })(step2getNumTextCtrl() + 1);
@@ -129,10 +136,11 @@ $(function () {
         textAlign: $("input[name=text-ctrl-"+index+"-textAlign]:checked").val(),
         x: parseInt($("#text-ctrl-"+index+"-x").val()),
         y: parseInt($("#text-ctrl-"+index+"-y").val()),
-        strokeStyle: $("#text-ctrl-"+index+"-stroke").val(),
+        strokeStyle: ($("#text-ctrl-"+index+"-stroke-use").is(':checked'))? $("#text-ctrl-"+index+"-stroke").val() : "transparent",
         fillStyle: $("#text-ctrl-"+index+"-fill").val()
       };
     }
+    console.debug(setting);
     mememaker2.resetTextSetting(setting);
     mememaker2.updateMeme();
   }
