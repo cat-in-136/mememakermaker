@@ -200,7 +200,8 @@ $(function () {
       }));
     }
 
-    var code = view.html() + "\n" +
+    var code = view.html() + "\n\n" +
+               "<script type=\"application/javascript\" src=\"mememakermaker.js\"></script>\n" +
                "<script type=\"application/javascript\">\n" +
                "$(function () {\n" +
                "  $.MemeMaker2(\n" +
