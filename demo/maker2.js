@@ -170,6 +170,23 @@ $(function () {
     shareOutput.children().remove();
     shareOutput.fadeTo("slow", 0);
   }
+  function onCodeToShareURLBtnClicked() {
+    var setting = mememaker2.getSetting();
+    delete setting["noAutoUpdate"];
+
+    var url = location.href.substring(0, location.href.lastIndexOf("/")) + "/maker2app.html";
+    url += "?" + encodeURIComponent(JSON.stringify(setting));
+
+    var shareOutput = $("#code-share-output");
+    shareOutput.fadeTo("normal", 0, function () {
+      shareOutput.children().remove();
+      shareOutput.append(
+        $("<a></a>").attr("href", url).text(url)
+      );
+      shareOutput.fadeTo("normal", 1);
+    });
+  }
+  $("#code-share-URL-btn").on("click", onCodeToShareURLBtnClicked);
   function onCodeToShareCodeBtnClicked() {
     var setting = mememaker2.getSetting();
     delete setting["noAutoUpdate"];
